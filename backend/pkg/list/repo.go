@@ -84,7 +84,7 @@ func (dgRepo *DgraphListRepo) GetBuyerInformation(buyerId string) (*dtos.BuyerIn
 				}
 			}
 				
-			buyersWithSameIp(func: eq(ipAddress, val(ipAddress))) @filter(NOT uid(ipAddress)){
+			buyersWithSameIp(func: eq(ipAddress, val(ipAddress)), first: 10) @filter(NOT uid(ipAddress)){
 				device
 				ipAddress
 				buyer: was_made_by {
