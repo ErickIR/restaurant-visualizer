@@ -8,6 +8,7 @@ import (
 
 	"restaurant-visualizer/pkg/http/rest"
 	"restaurant-visualizer/pkg/integration"
+	"restaurant-visualizer/pkg/list"
 	"restaurant-visualizer/pkg/load"
 	"restaurant-visualizer/pkg/storage"
 
@@ -33,11 +34,13 @@ func main() {
 	context := context.Background()
 
 	loadRepo := load.NewDgraphLoadRepo(*db, context)
+	listRespo := list.NewDgraphListRepo(*db, context)
 
 	externalService := integration.NewExternalService(client)
 	loadService := load.NewService(loadRepo, externalService)
+	listService := list.NewService(listRespo)
 
-	router := rest.InitHandlers(*loadService)
+	router := rest.InitHandlers(*loadService, *listService)
 
 	log.Printf("Starting server on http://localhost%s/api/\n", port)
 	log.Fatal(http.ListenAndServe(port, router))

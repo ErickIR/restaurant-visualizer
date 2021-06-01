@@ -129,6 +129,12 @@ func loadTransactions(repo LoadRepo, externalService integration.ExternalGetter,
 		if err != nil {
 			return err
 		}
+
+		err = repo.SetProductsToTransactions(filteredTransactions)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

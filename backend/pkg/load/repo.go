@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"restaurant-visualizer/pkg/models"
 	"restaurant-visualizer/pkg/storage"
+	"strings"
 
 	"github.com/dgraph-io/dgo/v2/protos/api"
 )
@@ -16,6 +17,7 @@ type LoadRepo interface {
 	FilterDuplicateProducts(products []models.Product) ([]models.Product, error)
 	FilterDuplicateTransactions(transactions []models.Transaction) ([]models.Transaction, error)
 	SetBuyersToTransactions(transactions []models.Transaction) error
+	SetProductsToTransactions(transactions []models.Transaction) error
 }
 
 type DgraphLoadRepo struct {
@@ -218,32 +220,108 @@ func (dgRepo *DgraphLoadRepo) FilterDuplicateTransactions(transactions []models.
 func (dgRepo *DgraphLoadRepo) SetBuyersToTransactions(transactions []models.Transaction) error {
 	txn := dgRepo.db.DbClient.NewTxn()
 
+	boughtMap := make(map[string][]string)
+
 	for _, transaction := range transactions {
-		query := `
-			query {
-				buyer as var(func: eq(id, "%s"))
-				transaction as var(func: eq(id, "%s"))
-			}
-		`
+		_, isOk := boughtMap[transaction.BuyerId]
 
-		formatQuery := fmt.Sprintf(query, transaction.BuyerId, transaction.Id)
-		mutation := &api.Mutation{
-			SetNquads: []byte(`uid(transaction) <buyer> uid(buyer) .`),
+		if !isOk {
+			boughtMap[transaction.BuyerId] = []string{}
 		}
 
-		req := &api.Request{
-			Query:     formatQuery,
-			Mutations: []*api.Mutation{mutation},
-		}
-
-		_, err := txn.Do(dgRepo.context, req)
-
-		if err != nil {
-			return err
-		}
+		boughtMap[transaction.BuyerId] = append(boughtMap[transaction.BuyerId], transaction.Id)
 	}
 
-	err := txn.Commit(dgRepo.context)
+	queryStr := "query {"
+	mutationStr := ""
+	queryFmt := `
+		buyer.%s as var(func: eq(id, "%s"))
+		trans.%s as var(func: anyofterms(id, "%s"))
+	`
+	mutationFmt := `
+		uid(buyer.%s) <made> uid(trans.%s) .
+		uid(trans.%s) <was_made_by> uid(buyer.%s) .
+	`
+	for buyerId, trans := range boughtMap {
+		transList := strings.Join(trans, " ")
+
+		queryStr += fmt.Sprintf(queryFmt, buyerId, buyerId, buyerId, transList)
+		mutationStr += fmt.Sprintf(mutationFmt, buyerId, buyerId, buyerId, buyerId)
+	}
+	queryStr += "\n}"
+
+	mutation := &api.Mutation{
+		SetNquads: []byte(mutationStr),
+	}
+
+	req := &api.Request{
+		Query:     queryStr,
+		Mutations: []*api.Mutation{mutation},
+	}
+
+	_, err := txn.Do(dgRepo.context, req)
+
+	if err != nil {
+		return err
+	}
+
+	err = txn.Commit(dgRepo.context)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (dgRepo *DgraphLoadRepo) SetProductsToTransactions(transactions []models.Transaction) error {
+	txn := dgRepo.db.DbClient.NewTxn()
+
+	productsMap := make(map[string]string)
+
+	for _, transaction := range transactions {
+		_, isOk := productsMap[transaction.Id]
+
+		if !isOk {
+			productsMap[transaction.Id] = ""
+		}
+
+		productsMap[transaction.Id] += strings.Join(transaction.ProductIds, " ")
+	}
+
+	queryStr := "query {"
+	mutationStr := ""
+	queryFmt := `
+		trans.%s as var(func: eq(id, "%s"))
+		products.%s as var(func: anyofterms(id, "%s"))
+	`
+	mutationFmt := `
+		uid(trans.%s) <bought> uid(products.%s) .
+		uid(products.%s) <was_bought> uid(trans.%s) .
+	`
+	for transId, productsBought := range productsMap {
+
+		queryStr += fmt.Sprintf(queryFmt, transId, transId, transId, productsBought)
+		mutationStr += fmt.Sprintf(mutationFmt, transId, transId, transId, transId)
+	}
+	queryStr += "\n}"
+
+	mutation := &api.Mutation{
+		SetNquads: []byte(mutationStr),
+	}
+
+	req := &api.Request{
+		Query:     queryStr,
+		Mutations: []*api.Mutation{mutation},
+	}
+
+	_, err := txn.Do(dgRepo.context, req)
+
+	if err != nil {
+		return err
+	}
+
+	err = txn.Commit(dgRepo.context)
 
 	if err != nil {
 		return err
