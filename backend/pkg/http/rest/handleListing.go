@@ -7,6 +7,8 @@ import (
 	"restaurant-visualizer/pkg/http/response"
 	"restaurant-visualizer/pkg/list"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func WelcomeHandler() func(rw http.ResponseWriter, r *http.Request) {
@@ -40,6 +42,7 @@ func ListBuyers(s list.DataEnlister) func(rw http.ResponseWriter, r *http.Reques
 		if err != nil {
 			response := response.NewFailedResponse(err.Error())
 			json.NewEncoder(rw).Encode(response)
+			return
 		}
 
 		count, err := s.GetBuyersCount()
@@ -47,6 +50,7 @@ func ListBuyers(s list.DataEnlister) func(rw http.ResponseWriter, r *http.Reques
 		if err != nil {
 			response := response.NewFailedResponse(err.Error())
 			json.NewEncoder(rw).Encode(response)
+			return
 		}
 
 		totalPages := count / size
@@ -67,6 +71,23 @@ func ListBuyers(s list.DataEnlister) func(rw http.ResponseWriter, r *http.Reques
 		}
 
 		response := response.NewPaginatedResponse(buyers, page, size, totalPages, count, "", next, previous)
+		json.NewEncoder(rw).Encode(response)
+	}
+
+}
+
+func GetBuyerInformation(s list.DataEnlister) func(rw http.ResponseWriter, r *http.Request) {
+	return func(rw http.ResponseWriter, r *http.Request) {
+		buyerId := chi.URLParam(r, "buyerId")
+
+		buyerInfo, err := s.GetBuyerInformation(buyerId)
+
+		if err != nil {
+			response := response.NewFailedResponse(err.Error())
+			json.NewEncoder(rw).Encode(response)
+		}
+
+		response := response.NewSuccessResponse(buyerInfo, "Data fetched.")
 		json.NewEncoder(rw).Encode(response)
 	}
 }

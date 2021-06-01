@@ -1,10 +1,14 @@
 package list
 
-import "restaurant-visualizer/pkg/models"
+import (
+	"errors"
+	dtos "restaurant-visualizer/pkg/dtos/out"
+	"restaurant-visualizer/pkg/models"
+)
 
 type DataEnlister interface {
 	GetAllBuyers(page, size int) ([]models.Buyer, error)
-	// GetAllBuyers(buyerId string) (interface{}, error)
+	GetBuyerInformation(buyerId string) (*dtos.BuyerInfo, error)
 	GetBuyersCount() (int, error)
 }
 
@@ -34,6 +38,20 @@ func (s *ListService) GetBuyersCount() (int, error) {
 
 	if err != nil {
 		return 0, err
+	}
+
+	return resp, nil
+}
+
+func (s *ListService) GetBuyerInformation(buyerId string) (*dtos.BuyerInfo, error) {
+	resp, err := s.repo.GetBuyerInformation(buyerId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if resp == nil {
+		return nil, errors.New("buyer not found")
 	}
 
 	return resp, nil
