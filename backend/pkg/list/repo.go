@@ -46,10 +46,10 @@ func (dgRepo *DgraphListRepo) Query(query string, variables map[string]string) (
 	return result, nil
 }
 
-func (dgRepo *DgraphListRepo) GetAllBuyers(page, size int) ([]models.Buyer, error) {
+func (dgRepo *DgraphListRepo) GetAllBuyers(offset, size int) ([]models.Buyer, error) {
 	query := `
-		query GetAllBuyers($page: int, $size: int) {
-			buyers(func: type(Buyer), offset: $page, first: $size) {
+		query GetAllBuyers($offset: int, $size: int) {
+			buyers(func: type(Buyer), offset: $offset, first: $size) {
 				id
 				name
 				age
@@ -57,7 +57,7 @@ func (dgRepo *DgraphListRepo) GetAllBuyers(page, size int) ([]models.Buyer, erro
 		}
 	`
 
-	variables := map[string]string{"$page": fmt.Sprint(page), "$size": fmt.Sprint(size)}
+	variables := map[string]string{"$offset": fmt.Sprint(offset), "$size": fmt.Sprint(size)}
 
 	resp, err := dgRepo.db.DbClient.NewReadOnlyTxn().QueryWithVars(dgRepo.context, query, variables)
 
@@ -78,7 +78,7 @@ func (dgRepo *DgraphListRepo) GetAllBuyers(page, size int) ([]models.Buyer, erro
 
 func (dgRepo *DgraphListRepo) GetTotalBuyersCount() (int, error) {
 	query := `
-		query @normalize {
+		query {
 			total(func: type(Buyer))  {
 				count: count(uid)
 			}

@@ -17,7 +17,10 @@ func NewService(r ListRepo) *ListService {
 }
 
 func (s *ListService) GetAllBuyers(page, size int) ([]models.Buyer, error) {
-	resp, err := s.repo.GetAllBuyers(page, size)
+
+	offset := ((page - 1) * size) + 1
+
+	resp, err := s.repo.GetAllBuyers(offset, size)
 
 	if err != nil {
 		return nil, err
