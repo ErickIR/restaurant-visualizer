@@ -19,12 +19,13 @@ func LoadSchema(Db *storage.Storage) error {
 		price: int .
 		device: string .
 		buyerId: string @index(exact) .
-		was_made_by: uid @reverse .
-		made: [uid] @reverse .
+		date: string @index(exact) .
+		was_made_by: uid .
+		made: [uid] .
 		ipAddress: string @index(exact) .
 		productIds: [string] @index(exact) .
-		bought: [uid] @reverse .
-		was_bought: [uid] @reverse .
+		bought: [uid] .
+		was_bought: [uid] .
 
 		type Transaction {
 			id: string
@@ -34,6 +35,7 @@ func LoadSchema(Db *storage.Storage) error {
 			device: string
 			productIds: [string]
 			bought: [uid]
+			date: string
 		}
 
 		type Buyer {

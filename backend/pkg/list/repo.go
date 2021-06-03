@@ -22,7 +22,8 @@ type DgraphListRepo struct {
 }
 
 type BuyerInfoResponse struct {
-	BuyerInfo        []dtos.BuyerInfo            `json:"buyer,omitempty"`
+	BuyerInfo        []dtos.BuyerDto             `json:"buyer,omitempty"`
+	Transactions     []dtos.TransactionInfo      `json:"transactions,omitempty"`
 	BuyersWithSameIp []dtos.BuyersWithRelatedIps `json:"buyersWithSameIp,omitempty"`
 }
 
@@ -71,20 +72,22 @@ func (dgRepo *DgraphListRepo) GetBuyerInformation(buyerId string) (*dtos.BuyerIn
 				id
 				name
 				age
-				transactions: made {
-					id
-					ipAddress as ipAddress
-					device
-					products: bought {
-						id
-						name
-						price as price
-					}
-					total:  sum(val(price))
-				}
 			}
 				
-			buyersWithSameIp(func: eq(ipAddress, val(ipAddress)), first: 10) @filter(NOT uid(ipAddress)){
+			transactions(func: eq(buyerId, $buyerId), first: 10){
+				id
+				ipAddress as ipAddress
+				device
+				products: bought {
+					id
+					name
+					price as price
+				}
+				total: sum(val(price))
+			}
+				
+			buyersWithSameIp(func: eq(ipAddress, val(ipAddress)), first: 10) @filter(NOT uid(ipAddress)) 
+				{
 				device
 				ipAddress
 				buyer: was_made_by {
@@ -118,9 +121,7 @@ func (dgRepo *DgraphListRepo) GetBuyerInformation(buyerId string) (*dtos.BuyerIn
 
 	result := dgraphResponse.BuyerInfo[0]
 
-	fmt.Println(len(dgraphResponse.BuyersWithSameIp))
-
-	buyerInfo := dtos.NewBuyerInformation(result.Id, result.Name, result.Age, result.Transactions, dgraphResponse.BuyersWithSameIp)
+	buyerInfo := dtos.NewBuyerInformation(result, dgraphResponse.Transactions, dgraphResponse.BuyersWithSameIp)
 
 	return buyerInfo, nil
 }

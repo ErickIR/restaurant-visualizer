@@ -128,7 +128,7 @@ func (es *ExternalService) GetTransactions(date string) ([]models.Transaction, e
 		return nil, err
 	}
 
-	transactions, err := convertByteArrayNoStandardToTransactionsList(body)
+	transactions, err := convertByteArrayNoStandardToTransactionsList(body, date)
 
 	if err != nil {
 		return nil, err
@@ -137,7 +137,7 @@ func (es *ExternalService) GetTransactions(date string) ([]models.Transaction, e
 	return transactions, nil
 }
 
-func convertByteArrayNoStandardToTransactionsList(bytes []byte) ([]models.Transaction, error) {
+func convertByteArrayNoStandardToTransactionsList(bytes []byte, date string) ([]models.Transaction, error) {
 	var transactions []models.Transaction
 
 	bodyString := string(bytes)
@@ -157,7 +157,7 @@ func convertByteArrayNoStandardToTransactionsList(bytes []byte) ([]models.Transa
 
 		productIds := strings.Split(transactionData[4][1:len(transactionData[4])-1], ",")
 
-		transaction, err := models.NewTransaction(transactionData[0], transactionData[1], transactionData[2], transactionData[3], productIds)
+		transaction, err := models.NewTransaction(transactionData[0], transactionData[1], transactionData[2], transactionData[3], date, productIds)
 
 		if err != nil {
 			continue

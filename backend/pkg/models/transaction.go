@@ -10,9 +10,10 @@ type Transaction struct {
 	ProductIds []string  `json:"productIds,omitempty"`
 	Products   []Product `json:"bought,omitempty"`
 	DType      []string  `json:"dgraph.type,omitempty"`
+	Date       string    `json:"date,omitempty"`
 }
 
-func NewTransaction(id string, buyerId string, ipAddress string, device string, productIds []string) (*Transaction, error) {
+func NewTransaction(id, buyerId, ipAddress, device, date string, productIds []string) (*Transaction, error) {
 	return &Transaction{
 		Id:         id,
 		BuyerId:    buyerId,
@@ -20,5 +21,6 @@ func NewTransaction(id string, buyerId string, ipAddress string, device string, 
 		Device:     device,
 		ProductIds: productIds,
 		DType:      []string{"Transaction"},
+		Date:       date,
 	}, nil
 }

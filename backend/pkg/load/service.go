@@ -2,7 +2,10 @@ package load
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"restaurant-visualizer/pkg/integration"
+	"time"
 )
 
 type DataLoader interface {
@@ -19,7 +22,21 @@ func NewService(r LoadRepo, es integration.ExternalGetter) *LoadService {
 }
 
 func (s *LoadService) LoadData(date string) error {
-	err := loadBuyers(s.repo, s.externalService, date)
+	if date == "" {
+		date = fmt.Sprint(time.Now().Local().Unix())
+	}
+
+	isLoaded, err := s.repo.IsDateLoaded(date)
+
+	if err != nil {
+		return err
+	}
+
+	if isLoaded {
+		return errors.New("date is loaded")
+	}
+
+	err = loadBuyers(s.repo, s.externalService, date)
 
 	if err != nil {
 		return err

@@ -18,6 +18,7 @@ type LoadRepo interface {
 	FilterDuplicateTransactions(transactions []models.Transaction) ([]models.Transaction, error)
 	SetBuyersToTransactions(transactions []models.Transaction) error
 	SetProductsToTransactions(transactions []models.Transaction) error
+	IsDateLoaded(date string) (bool, error)
 }
 
 type DgraphLoadRepo struct {
@@ -328,4 +329,46 @@ func (dgRepo *DgraphLoadRepo) SetProductsToTransactions(transactions []models.Tr
 	}
 
 	return nil
+}
+
+func (dgRepo *DgraphLoadRepo) IsDateLoaded(date string) (bool, error) {
+	query := `
+		query dateExists($date: string){
+			transactions(func: eq(date, $date), first: 1){
+				id
+			}
+		}
+	`
+
+	variables := map[string]string{"$date": date}
+
+	resp, err := dgRepo.db.DbClient.NewReadOnlyTxn().QueryWithVars(dgRepo.context, query, variables)
+
+	if err != nil {
+		return false, err
+	}
+
+	type HasTransactions struct {
+		Id string `json:"id,omitempty"`
+	}
+
+	type dateExistsResponse struct {
+		Transactions []HasTransactions `json:"transactions,omitempty"`
+	}
+
+	var dgraphResponse dateExistsResponse
+
+	err = json.Unmarshal(resp.Json, &dgraphResponse)
+
+	if err != nil {
+		return false, err
+	}
+
+	// Date is not loaded
+	if len(dgraphResponse.Transactions) == 0 {
+		return false, nil
+	}
+
+	// Date is loaded
+	return true, nil
 }
