@@ -59,13 +59,13 @@ func ListBuyers(s list.DataEnlister) func(rw http.ResponseWriter, r *http.Reques
 		var previous string
 
 		if page < totalPages {
-			next = fmt.Sprintf("/api/buyer?page=%v&size=%v", page+1, size)
+			next = fmt.Sprintf("/buyer?page=%v&size=%v", page+1, size)
 		} else {
 			next = ""
 		}
 
 		if page > 1 {
-			previous = fmt.Sprintf("/api/buyer?page=%v&size=%v", page-1, size)
+			previous = fmt.Sprintf("/buyer?page=%v&size=%v", page-1, size)
 		} else {
 			previous = ""
 		}
