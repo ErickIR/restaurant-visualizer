@@ -38,10 +38,11 @@ func NewDgraphListRepo(Db storage.Storage, context context.Context) *DgraphListR
 func (dgRepo *DgraphListRepo) GetAllBuyers(offset, size int) ([]models.Buyer, error) {
 	query := `
 		query GetAllBuyers($offset: int, $size: int) {
-			buyers(func: type(Buyer), offset: $offset, first: $size) {
+			buyers(func: type(Buyer), offset: $offset, first: $size, orderdesc: date) {
 				id
 				name
 				age
+			date
 			}
 		}
 	`

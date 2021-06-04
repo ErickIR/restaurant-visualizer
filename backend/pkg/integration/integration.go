@@ -57,7 +57,7 @@ func (es *ExternalService) GetBuyers(date string) ([]models.Buyer, error) {
 	duplicate := make(map[string]bool)
 
 	for _, item := range buyersList {
-		buyer, err := models.NewBuyer(item.Id, item.Name, item.Age)
+		buyer, err := models.NewBuyer(item.Id, item.Name, item.Age, date)
 
 		if err != nil {
 			log.Println(err)

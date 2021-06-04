@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.transactions.R
@@ -17,11 +17,11 @@ import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.snackbar.Snackbar
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -32,11 +32,11 @@ class BuyersList : Fragment() {
     private val repo = ApiServiceClient()
     private var page = 1
     private var nextPage = 2
-    private var loading = true
     private lateinit var buyersList: ArrayList<Buyer>
     private lateinit var adapter: BuyerListAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var linearLayoutManager: LinearLayoutManager
+    private lateinit var loadingIndicator: CircularProgressIndicator
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -50,6 +50,7 @@ class BuyersList : Fragment() {
         recyclerView.layoutManager = linearLayoutManager
         adapter = BuyerListAdapter(buyersList)
         recyclerView.adapter = adapter
+        loadingIndicator = view.findViewById(R.id.loadingIndicator)
 
         recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -59,27 +60,20 @@ class BuyersList : Fragment() {
                     val totalItemCount = linearLayoutManager.itemCount
                     val pastVisibleItems = linearLayoutManager.findFirstVisibleItemPosition()
 
-                    if (loading) {
-                        if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
-                            loading = true
-                            getBuyers(nextPage)
-                        }
+                    if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
+                        showLoadingIndicator()
+                        getBuyers(nextPage)
+                        hideLoadingIndicator()
                     }
                 }
             }
         })
 
-        setDatePicker(view)
+        setLoadDataDatePicker(view)
+        getBuyers(page)
 
         return view
     }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        getBuyers(page)
-    }
-
-
 
     private fun getBuyers(page: Int) {
         val call = repo.getAllBuyers(page)
@@ -101,35 +95,37 @@ class BuyersList : Fragment() {
                                 nextPage = page + 1
                             }
                         }
+                        if (buyersRequested?.isEmpty() == true) {
+                            showSnackNotification("It seems that there is no data on the server.", R.color.red)
+                        }
                     } else {
                         val message = response.body()?.message
-                        Snackbar.make(view!!, message!!, Snackbar.LENGTH_LONG)
-                            .setBackgroundTint(resources.getColor(R.color.red))
-                            .show()
+                        showSnackNotification(message, R.color.red)
                     }
+                    hideLoadingIndicator()
                 }
             }
 
             override fun onFailure(call: Call<PaginatedApiResponse>, t: Throwable) {
                 val message = t.message
-                Snackbar.make(view!!, message!!, Snackbar.LENGTH_LONG)
-                    .setBackgroundTint(resources.getColor(R.color.red))
-                    .show()
+                showSnackNotification(message, R.color.red)
             }
         })
     }
 
-    private fun showToastNotification(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    private fun showSnackNotification(message: String?, resourceColor: Int) {
+        Snackbar.make(requireView(), message.toString(), Snackbar.LENGTH_LONG)
+            .setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            .setBackgroundTint(ContextCompat.getColor(requireContext(), resourceColor))
+            .show()
     }
 
     private fun loadBuyersToList(buyers: List<Buyer>){
         buyersList.addAll(buyers)
         adapter.notifyDataSetChanged()
-
     }
 
-    private fun setDatePicker(view: View) {
+    private fun setLoadDataDatePicker(view: View) {
         val today = MaterialDatePicker.todayInUtcMilliseconds()
 
         val datePickerBuilder = MaterialDatePicker.Builder.datePicker()
@@ -147,12 +143,23 @@ class BuyersList : Fragment() {
 
         datePicker.addOnPositiveButtonClickListener {
             val unixTimeStamp = it / 1000
+            showLoadingIndicator()
             loadDataToBd(unixTimeStamp.toString())
         }
 
         view.findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
             datePicker.show(parentFragmentManager, "MyTAG")
         }
+    }
+
+    private fun showLoadingIndicator() {
+        loadingIndicator.visibility = View.VISIBLE
+        recyclerView.visibility = View.GONE
+    }
+
+    private fun hideLoadingIndicator() {
+        recyclerView.visibility = View.VISIBLE
+        loadingIndicator.visibility = View.GONE
     }
 
     private fun loadDataToBd(date: String)  {
@@ -167,24 +174,20 @@ class BuyersList : Fragment() {
 
                     if (isSuccess) {
                         val message = response.body()?.message
-                        Snackbar.make(view!!, message!!, Snackbar.LENGTH_LONG)
-                            .setBackgroundTint(resources.getColor(R.color.primary))
-                            .show()
+                        showSnackNotification(message, R.color.green)
                     } else {
                         val message = response.body()?.message
-                        Snackbar.make(view!!, message!!, Snackbar.LENGTH_LONG)
-                            .setBackgroundTint(resources.getColor(R.color.red))
-                            .show()
+                        showSnackNotification(message, R.color.red)
                     }
+                    hideLoadingIndicator()
                 }
             }
 
             override fun onFailure(call: Call<ApiResponse<Unit>>, t: Throwable) {
                 val message = t.message
-                Snackbar.make(view!!, message!!, Snackbar.LENGTH_LONG)
-                    .setBackgroundTint(resources.getColor(R.color.red))
-                    .show()
+                showSnackNotification(message, R.color.red)
             }
         })
+
     }
 }

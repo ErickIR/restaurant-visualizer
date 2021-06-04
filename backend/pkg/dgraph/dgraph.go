@@ -43,6 +43,7 @@ func LoadSchema(Db *storage.Storage) error {
 			name: string
 			age: int
 			made: [uid]
+			date: string
 		}
 
 		type Product {
@@ -50,6 +51,7 @@ func LoadSchema(Db *storage.Storage) error {
 			name: string
 			price: int
 			was_bought: [uid]
+			date: string
 		}
 	`
 
