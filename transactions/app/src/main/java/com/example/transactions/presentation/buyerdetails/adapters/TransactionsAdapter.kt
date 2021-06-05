@@ -46,7 +46,7 @@ class TransactionsAdapter(private val transactions: ArrayList<Transaction>)
 
             override fun onClick(view: View?) {
                 showProducts = !showProducts
-                transactionsRecyclerView.visibility = if (showProducts) View.VISIBLE else View.GONE
+                transactionsRecyclerView.visibility = if (showProducts && transaction?.products?.isNotEmpty() == true) View.VISIBLE else View.GONE
             }
 
         }
