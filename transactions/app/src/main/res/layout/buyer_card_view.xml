@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipToPadding="false"
@@ -25,73 +26,98 @@
                 android:id="@+id/imageView"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:src="@drawable/ic_baseline_person_24"
                 android:layout_margin="5dp"
-                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/ic_baseline_person_24"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/textViewName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
                 android:text="Jhon Doe"
+                android:textColor="@color/black"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginStart="20dp"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toEndOf="@id/imageView"
-                app:layout_constraintBottom_toTopOf="@id/labelAge"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/labelAge"
+                android:id="@+id/labelDetailsId"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Age:"
+                android:layout_marginStart="20dp"
+                android:text="ID:"
+                android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginStart="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toEndOf="@id/imageView"/>
-
-            <TextView
-                android:id="@+id/textViewAge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="18"
-                android:layout_marginStart="5dp"
-                android:textStyle="normal"
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                app:layout_constraintTop_toTopOf="@id/labelAge"
-                app:layout_constraintStart_toEndOf="@id/labelAge"/>
-
-            <TextView
-                android:id="@+id/labelId"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Age:"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginStart="20dp"
-                app:layout_constraintTop_toBottomOf="@id/labelAge"
-                app:layout_constraintStart_toEndOf="@id/imageView"/>
+                app:layout_constraintStart_toEndOf="@id/imageView"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/textViewId"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="18"
                 android:layout_marginStart="5dp"
-                android:textStyle="normal"
-                android:textSize="16sp"
+                android:text="18"
                 android:textColor="@color/black"
-                app:layout_constraintTop_toBottomOf="@id/labelAge"
-                app:layout_constraintStart_toEndOf="@id/labelId"/>
+                android:textSize="16sp"
+                android:textStyle="normal"
+                app:layout_constraintStart_toEndOf="@id/labelDetailsId"
+                app:layout_constraintTop_toTopOf="@id/labelDetailsId" />
+
+            <TextView
+                android:id="@+id/labelAge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="Age:"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@id/imageView"
+                app:layout_constraintTop_toBottomOf="@id/labelDetailsId" />
+
+            <TextView
+                android:id="@+id/textViewAge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:text="18"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="normal"
+                app:layout_constraintStart_toEndOf="@id/labelAge"
+                app:layout_constraintTop_toBottomOf="@id/labelDetailsId" />
+
+            <TextView
+                android:id="@+id/createdAtLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Created At: "
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:textStyle="normal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/imageView"
+                app:layout_constraintTop_toBottomOf="@+id/textViewAge" />
+
+            <TextView
+                android:id="@+id/createdAtText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="01/01/2021"
+                android:textColor="@color/black"
+                android:textSize="12dp"
+                android:layout_marginTop="5dp"
+                android:textStyle="normal"
+                app:layout_constraintStart_toEndOf="@+id/createdAtLabel"
+                app:layout_constraintTop_toBottomOf="@id/textViewAge" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

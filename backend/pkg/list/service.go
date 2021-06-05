@@ -10,6 +10,7 @@ type DataEnlister interface {
 	GetAllBuyers(page, size int) ([]models.Buyer, error)
 	GetBuyerInformation(buyerId string) (*dtos.BuyerInfo, error)
 	GetBuyersCount() (int, error)
+	GetBuyersByDate(date string) ([]models.Buyer, error)
 }
 
 type ListService struct {
@@ -18,6 +19,16 @@ type ListService struct {
 
 func NewService(r ListRepo) *ListService {
 	return &ListService{repo: r}
+}
+
+func (s *ListService) GetBuyersByDate(date string) ([]models.Buyer, error) {
+	resp, err := s.repo.GetBuyersByDate(date)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func (s *ListService) GetAllBuyers(page, size int) ([]models.Buyer, error) {

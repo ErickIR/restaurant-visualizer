@@ -8,5 +8,7 @@ data class Buyer(
         @SerializedName("name")
         val name: String,
         @SerializedName("age")
-        val age: Int
+        val age: Int,
+        @SerializedName("date")
+        val date: String
 )

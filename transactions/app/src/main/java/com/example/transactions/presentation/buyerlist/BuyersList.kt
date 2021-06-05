@@ -6,8 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.transactions.R
 import com.example.transactions.data.ApiResponse
 import com.example.transactions.data.ApiServiceClient
@@ -19,6 +22,8 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -37,34 +42,67 @@ class BuyersList : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var loadingIndicator: CircularProgressIndicator
+    private lateinit var searchTextView: TextInputLayout
+    private lateinit var searchEditText: TextInputEditText
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_first, container, false)
+        val view = inflater.inflate(R.layout.buyer_list, container, false)
         recyclerView = view.findViewById(R.id.buyersRecyclerView)
-        buyersList = ArrayList()
         linearLayoutManager = LinearLayoutManager(view.context)
         recyclerView.layoutManager = linearLayoutManager
+        buyersList = ArrayList()
         adapter = BuyerListAdapter(buyersList)
         recyclerView.adapter = adapter
         loadingIndicator = view.findViewById(R.id.loadingIndicator)
+        searchTextView = view.findViewById(R.id.searchTextInputLayout)
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
+        searchEditText = view.findViewById(R.id.searchEditText)
+        swipeRefreshLayout.setOnRefreshListener {
+            resetBuyers()
+            getBuyers(page)
+            swipeRefreshLayout.isRefreshing = false
+        }
+
+        searchTextView.setEndIconOnClickListener {
+            val buyerId: String = searchEditText.text.toString()
+            if(buyerId.isEmpty()) {
+                showSnackNotification("Type an ID to search...", R.color.red)
+
+            } else {
+                val bundle = bundleOf("buyerId" to buyerId)
+                view?.findNavController()?.navigate(R.id.actionGoToDetailsPage, bundle)
+            }
+        }
 
         recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            private var loading = true
+            private val visibleThreshold = 5
+            private var previousTotal = 0
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                if (dy > 0) {
-                    val visibleItemCount = linearLayoutManager.childCount
-                    val totalItemCount = linearLayoutManager.itemCount
-                    val pastVisibleItems = linearLayoutManager.findFirstVisibleItemPosition()
 
-                    if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
-                        showLoadingIndicator()
-                        getBuyers(nextPage)
-                        hideLoadingIndicator()
+                val visibleItemCount = recyclerView.childCount
+                val totalItemCount = linearLayoutManager.itemCount
+                val firstVisibleItem = linearLayoutManager.findFirstVisibleItemPosition()
+
+                if (loading) {
+                    if (totalItemCount > previousTotal) {
+                        loading = false
+                        previousTotal = totalItemCount
                     }
+                }
+
+                if(!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
+                    println("GETTING MORE DATA")
+                    showLoadingIndicator()
+                    getBuyers(nextPage)
+                    hideLoadingIndicator()
+                    loading = true
                 }
             }
         })
@@ -73,6 +111,13 @@ class BuyersList : Fragment() {
         getBuyers(page)
 
         return view
+    }
+
+    private fun resetBuyers() {
+        page = 1
+        nextPage = 2
+        buyersList.clear()
+        adapter.notifyDataSetChanged()
     }
 
     private fun getBuyers(page: Int) {
@@ -172,13 +217,10 @@ class BuyersList : Fragment() {
                 if (response.isSuccessful) {
                     val isSuccess = response.body()?.success ?: false
 
-                    if (isSuccess) {
-                        val message = response.body()?.message
-                        showSnackNotification(message, R.color.green)
-                    } else {
-                        val message = response.body()?.message
-                        showSnackNotification(message, R.color.red)
-                    }
+                    val snackColor = if (isSuccess) R.color.green else R.color.red
+                    val message = response.body()?.message
+
+                    showSnackNotification(message, snackColor)
                     hideLoadingIndicator()
                 }
             }
@@ -188,6 +230,5 @@ class BuyersList : Fragment() {
                 showSnackNotification(message, R.color.red)
             }
         })
-
     }
 }

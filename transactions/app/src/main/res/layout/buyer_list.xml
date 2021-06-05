@@ -29,6 +29,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textViewTitle">
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/searchTextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/search_text"
@@ -38,10 +39,11 @@
             app:boxCornerRadiusBottomStart="50dp"
             app:startIconDrawable="@drawable/ic_baseline_person_search_24"
             app:endIconMode="custom"
-            app:endIconDrawable="@drawable/ic_baseline_calendar_today_24"
+            app:endIconDrawable="@drawable/ic_baseline_shopping_cart_24"
             app:endIconContentDescription="Check for customers">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/searchEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white" />
@@ -61,16 +63,22 @@
         app:layout_constraintTop_toBottomOf="@id/cardViewSearch"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/buyersRecyclerView"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:clipToPadding="false"
-            android:scrollbars="vertical"
-            tools:listitem="@layout/buyer_card_view"
-            android:visibility="gone"/>
+            android:layout_height="wrap_content">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/buyersRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:clipToPadding="false"
+                android:scrollbars="vertical"
+                tools:listitem="@layout/buyer_card_view"
+                android:visibility="gone"/>
 
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/loadingIndicator"
             android:layout_width="wrap_content"

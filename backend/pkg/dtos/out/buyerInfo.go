@@ -6,12 +6,14 @@ type BuyerInfo struct {
 	Buyer            BuyerDto               `json:"buyer,omitempty"`
 	Transactions     []TransactionInfo      `json:"transactions,omitempty"`
 	BuyersWithSameIp []BuyersWithRelatedIps `json:"buyerWithSameIp,omitempty"`
+	Products         []models.Product       `json:"products,omitempty"`
 }
 
 type BuyerDto struct {
 	Id   string `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 	Age  int    `json:"age,omitempty"`
+	Date string `json:"date,omitempty"`
 }
 
 type TransactionInfo struct {
@@ -29,10 +31,11 @@ type BuyersWithRelatedIps struct {
 	BuyerInfo BuyerDto `json:"buyer,omitempty"`
 }
 
-func NewBuyerInformation(buyer BuyerDto, transactions []TransactionInfo, buyersSharingIp []BuyersWithRelatedIps) *BuyerInfo {
+func NewBuyerInformation(buyer BuyerDto, transactions []TransactionInfo, buyersSharingIp []BuyersWithRelatedIps, products []models.Product) *BuyerInfo {
 	return &BuyerInfo{
 		Buyer:            buyer,
 		Transactions:     transactions,
 		BuyersWithSameIp: buyersSharingIp,
+		Products:         products,
 	}
 }

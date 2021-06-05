@@ -4,24 +4,203 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.SecondFragment">
+    tools:context=".presentation.buyerdetails.BuyerDetails">
+
 
     <TextView
-        android:id="@+id/textview_second"
+        android:id="@+id/nameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/button_second"
+        android:text="Jhon Doe"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="36sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/button_second"
+    <ImageView
+        android:id="@+id/backIconButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/previous"
+        android:layout_margin="30dp"
+        android:src="@drawable/ic_baseline_arrow_back_ios_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/mainContainer"
+        style="@style/MainContainerCardView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        app:cardBackgroundColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textview_second" />
+        app:layout_constraintTop_toBottomOf="@+id/backIconButton">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestedScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/titleLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Buyer Information"
+                    android:textColor="@color/black"
+                    android:textSize="34sp"
+                    android:textStyle="bold" />
+
+                <RelativeLayout
+                    style="@style/profileDetailsLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/idImageView"
+                        style="@style/profileDetailsIcon"
+                        android:src="@drawable/ic_baseline_person_24" />
+
+                    <TextView
+                        android:id="@+id/idDetailsLabel"
+                        style="@style/profileDetailsTextMain"
+                        android:layout_toRightOf="@+id/idImageView"
+                        android:text="ID" />
+
+                    <TextView
+                        android:id="@+id/idDetailsTextView"
+                        style="@style/profileDetailsMiniText"
+                        android:layout_toRightOf="@+id/idImageView"
+                        android:text="1234aasdf" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    style="@style/profileDetailsLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/ageImageView"
+                        style="@style/profileDetailsIcon"
+                        android:src="@drawable/ic_baseline_pages_24" />
+
+                    <TextView
+                        android:id="@+id/ageDetailsLabel"
+                        style="@style/profileDetailsTextMain"
+                        android:layout_toRightOf="@+id/ageImageView"
+                        android:text="Age" />
+
+                    <TextView
+                        android:id="@+id/ageDetailsTextView"
+                        style="@style/profileDetailsMiniText"
+                        android:layout_toRightOf="@+id/ageImageView"
+                        android:text="18" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    style="@style/profileDetailsLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/dateImageView"
+                        style="@style/profileDetailsIcon"
+                        android:src="@drawable/ic_baseline_calendar_today_24" />
+
+                    <TextView
+                        android:id="@+id/dateDetailsLabel"
+                        style="@style/profileDetailsTextMain"
+                        android:layout_toRightOf="@+id/dateImageView"
+                        android:text="Last transaction" />
+
+                    <TextView
+                        android:id="@+id/dateDetailsTextView"
+                        style="@style/profileDetailsMiniText"
+                        android:layout_toRightOf="@+id/dateImageView"
+                        android:text="01/01/2021" />
+
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/transactionsTitleLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Transactions"
+                    android:textColor="@color/black"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/transactionsRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:scrollbars="vertical"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/otherBuyersTitleLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Buyers with related IPs"
+                    android:textColor="@color/black"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/otherBuyersRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:scrollbars="vertical"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/recommendedProductsTitleLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Recommended Products"
+                    android:textColor="@color/black"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recommendedProductsRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:scrollbars="vertical"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+
+
+        </androidx.core.widget.NestedScrollView>
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/loadingIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true" />
+
+    </com.google.android.material.card.MaterialCardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,26 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/BuyersList">
 
     <fragment
-        android:id="@+id/FirstFragment"
+        android:id="@+id/BuyersList"
         android:name="com.example.transactions.presentation.buyerlist.BuyersList"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
+        android:label="@string/buyers_list_label"
+        tools:layout="@layout/buyer_list">
 
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            android:id="@+id/actionGoToDetailsPage"
+            app:destination="@id/BuyerDetails"
+            app:enterAnim="@android:anim/fade_in" />
     </fragment>
     <fragment
-        android:id="@+id/SecondFragment"
-        android:name="com.example.transactions.presentation.SecondFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
+        android:id="@+id/BuyerDetails"
+        android:name="com.example.transactions.presentation.buyerdetails.BuyerDetails"
+        android:label="@string/buyer_details_label"
+        tools:layout="@layout/buyer_details">
 
-        <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+        <argument
+            android:name="buyerId"
+            app:argType="string"
+            android:defaultValue="" />
     </fragment>
 </navigation>

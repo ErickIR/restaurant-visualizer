@@ -25,6 +25,7 @@ func InitHandlers(loadService load.LoadService, listService list.ListService) ch
 	router.Get("/api", WelcomeHandler())
 
 	router.Get("/api/buyer", ListBuyers(&listService))
+	router.Get("/api/buyer/all", ListBuyersByDate(&listService))
 	router.Get("/api/buyer/{buyerId}", GetBuyerInformation(&listService))
 	router.Post("/api/load", LoadData(&loadService))
 

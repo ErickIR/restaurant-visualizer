@@ -10,7 +10,7 @@ import java.lang.Exception
 
 interface ApiServiceClient {
     companion object {
-        private const val baseUrl = "http://192.168.1.36:3000/api/"
+        private const val baseUrl = "http://192.168.0.102:3000/api/"
         private val retrofit = Retrofit.Builder()
             .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())

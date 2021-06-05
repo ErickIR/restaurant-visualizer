@@ -14,6 +14,7 @@ type ListRepo interface {
 	GetAllBuyers(page, size int) ([]models.Buyer, error)
 	GetTotalBuyersCount() (int, error)
 	GetBuyerInformation(buyerId string) (*dtos.BuyerInfo, error)
+	GetBuyersByDate(date string) ([]models.Buyer, error)
 }
 
 type DgraphListRepo struct {
@@ -25,6 +26,7 @@ type BuyerInfoResponse struct {
 	BuyerInfo        []dtos.BuyerDto             `json:"buyer,omitempty"`
 	Transactions     []dtos.TransactionInfo      `json:"transactions,omitempty"`
 	BuyersWithSameIp []dtos.BuyersWithRelatedIps `json:"buyersWithSameIp,omitempty"`
+	Products         []models.Product            `json:"top10Products,omitempty"`
 }
 
 type BuyersListResponse struct {
@@ -35,6 +37,37 @@ func NewDgraphListRepo(Db storage.Storage, context context.Context) *DgraphListR
 	return &DgraphListRepo{db: Db, context: context}
 }
 
+func (dgRepo *DgraphListRepo) GetBuyersByDate(date string) ([]models.Buyer, error) {
+	query := `
+		query GetBuyersByDate($date: string) {
+			buyers(func: eq(date, $date)) @filter(type(Buyer)){
+				id
+				name
+				age
+				date
+			}
+		}
+	`
+
+	variables := map[string]string{"$date": date}
+
+	resp, err := dgRepo.db.DbClient.NewReadOnlyTxn().QueryWithVars(dgRepo.context, query, variables)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var dgraphResponse BuyersListResponse
+
+	err = json.Unmarshal(resp.Json, &dgraphResponse)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return dgraphResponse.Buyers, nil
+}
+
 func (dgRepo *DgraphListRepo) GetAllBuyers(offset, size int) ([]models.Buyer, error) {
 	query := `
 		query GetAllBuyers($offset: int, $size: int) {
@@ -42,7 +75,7 @@ func (dgRepo *DgraphListRepo) GetAllBuyers(offset, size int) ([]models.Buyer, er
 				id
 				name
 				age
-			date
+				date
 			}
 		}
 	`
@@ -68,36 +101,50 @@ func (dgRepo *DgraphListRepo) GetAllBuyers(offset, size int) ([]models.Buyer, er
 
 func (dgRepo *DgraphListRepo) GetBuyerInformation(buyerId string) (*dtos.BuyerInfo, error) {
 	query := `
-		query getBuyerInformation($buyerId: string) {
-			buyer(func: eq(id, $buyerId)){
+		
+	query getBuyerInformation($buyerId: string) {
+		buyer(func: eq(id, $buyerId)){
+			id
+			name
+			age
+			date
+		}
+			
+		transactions(func: eq(buyerId, $buyerId), first: 10){
+			id
+			ipAddress as ipAddress
+			device
+			date
+			products: bought {
+				id
+				name
+				price as price
+			}
+			total: sum(val(price))
+		}
+			
+		buyersWithSameIp(func: eq(ipAddress, val(ipAddress)), first: 10) @filter(NOT uid(ipAddress)) 
+		{
+			device
+			ipAddress
+			buyer: was_made_by  {
 				id
 				name
 				age
 			}
-				
-			transactions(func: eq(buyerId, $buyerId), first: 10){
-				id
-				ipAddress as ipAddress
-				device
-				products: bought {
-					id
-					name
-					price as price
-				}
-				total: sum(val(price))
-			}
-				
-			buyersWithSameIp(func: eq(ipAddress, val(ipAddress)), first: 10) @filter(NOT uid(ipAddress)) 
-				{
-				device
-				ipAddress
-				buyer: was_made_by {
-					id
-					name
-					age
-				}
-			}
 		}
+
+		var(func: type(Product)){
+			id
+			total as count(was_bought)
+		}
+		
+		top10Products(func: uid(total), orderdesc: val(total), first: 10){
+			id
+			name
+			price
+		}
+	}
 	`
 
 	variables := map[string]string{"$buyerId": buyerId}
@@ -122,7 +169,7 @@ func (dgRepo *DgraphListRepo) GetBuyerInformation(buyerId string) (*dtos.BuyerIn
 
 	result := dgraphResponse.BuyerInfo[0]
 
-	buyerInfo := dtos.NewBuyerInformation(result, dgraphResponse.Transactions, dgraphResponse.BuyersWithSameIp)
+	buyerInfo := dtos.NewBuyerInformation(result, dgraphResponse.Transactions, dgraphResponse.BuyersWithSameIp, dgraphResponse.Products)
 
 	return buyerInfo, nil
 }
