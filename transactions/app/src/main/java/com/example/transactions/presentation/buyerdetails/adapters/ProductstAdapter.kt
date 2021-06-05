@@ -18,7 +18,7 @@ class ProductstAdapter(private val products: ArrayList<Product>)
         fun bindProductInfo(productInfo: Product) {
             product = productInfo
             bindView()
-            nameTextView.text = if(productInfo.name.length >= 25) "${productInfo.name.substring(0..25)}..." else productInfo.name
+            nameTextView.text = if(productInfo.name.length >= 35) "${productInfo.name.substring(0..35)}..." else productInfo.name
             priceTextView.text = "Price: ${productInfo.price}"
         }
 
