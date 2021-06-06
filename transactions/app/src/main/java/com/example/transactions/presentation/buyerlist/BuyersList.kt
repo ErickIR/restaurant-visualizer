@@ -209,6 +209,7 @@ class BuyersList : Fragment() {
 
     private fun loadDataToBd(date: String)  {
         val call = repo.loadData(date)
+
         call.enqueue(object: Callback<ApiResponse<Unit>> {
             override fun onResponse(
                 call: Call<ApiResponse<Unit>>,
@@ -221,6 +222,8 @@ class BuyersList : Fragment() {
                     val message = response.body()?.message
 
                     showSnackNotification(message, snackColor)
+                    resetBuyers()
+                    getBuyers(page)
                     hideLoadingIndicator()
                 }
             }
