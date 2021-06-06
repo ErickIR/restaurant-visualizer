@@ -134,16 +134,36 @@ func (dgRepo *DgraphListRepo) GetBuyerInformation(buyerId string) (*dtos.BuyerIn
 			}
 		}
 
-		var(func: type(Product)){
-			id
-			total as count(was_bought)
-		}
-		
-		top10Products(func: uid(total), orderdesc: val(total), first: 10){
+		var(func: eq(id, $buyerId)){
+			made {
+				bought {
+					productsBought as id
+				}
+			}
+		} 
+	
+		var(func: eq(id, val(productsBought))){
 			id
 			name
 			price
+			was_bought {
+				id
+				bought @filter(NOT uid(productsBought)) {
+					productsToBeRecommended as id
+				}
+			}
 		}
+			
+		var(func: eq(id, val(productsToBeRecommended))){
+			id
+			total as count(was_bought)
+		}
+			
+		top10Products(func: uid(total), orderdesc: val(total), first: 10){
+				id
+				name
+				price
+			}
 	}
 	`
 
