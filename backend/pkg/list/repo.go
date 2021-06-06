@@ -101,70 +101,69 @@ func (dgRepo *DgraphListRepo) GetAllBuyers(offset, size int) ([]models.Buyer, er
 
 func (dgRepo *DgraphListRepo) GetBuyerInformation(buyerId string) (*dtos.BuyerInfo, error) {
 	query := `
-		
-	query getBuyerInformation($buyerId: string) {
-		buyer(func: eq(id, $buyerId)){
-			id
-			name
-			age
-			date
-		}
-			
-		transactions(func: eq(buyerId, $buyerId), first: 10){
-			id
-			ipAddress as ipAddress
-			device
-			date
-			products: bought {
-				id
-				name
-				price as price
-			}
-			total: sum(val(price))
-		}
-			
-		buyersWithSameIp(func: eq(ipAddress, val(ipAddress)), first: 10) @filter(NOT uid(ipAddress)) 
-		{
-			device
-			ipAddress
-			buyer: was_made_by  {
+		query getBuyerInformation($buyerId: string) {
+			buyer(func: eq(id, $buyerId)){
 				id
 				name
 				age
+				date
 			}
-		}
-
-		var(func: eq(id, $buyerId)){
-			made {
-				bought {
-					productsBought as id
-				}
-			}
-		} 
-	
-		var(func: eq(id, val(productsBought))){
-			id
-			name
-			price
-			was_bought {
+				
+			transactions(func: eq(buyerId, $buyerId), first: 10){
 				id
-				bought @filter(NOT uid(productsBought)) {
-					productsToBeRecommended as id
+				ipAddress as ipAddress
+				device
+				date
+				products: bought {
+					id
+					name
+					price as price
+				}
+				total: sum(val(price))
+			}
+				
+			buyersWithSameIp(func: eq(ipAddress, val(ipAddress)), first: 10) @filter(NOT uid(ipAddress)) 
+			{
+				device
+				ipAddress
+				buyer: was_made_by  {
+					id
+					name
+					age
 				}
 			}
-		}
-			
-		var(func: eq(id, val(productsToBeRecommended))){
-			id
-			total as count(was_bought)
-		}
-			
-		top10Products(func: uid(total), orderdesc: val(total), first: 10){
+
+			var(func: eq(id, $buyerId)){
+				made {
+					bought {
+						productsBought as id
+					}
+				}
+			} 
+		
+			var(func: eq(id, val(productsBought))){
 				id
 				name
 				price
+				was_bought {
+					id
+					bought @filter(NOT uid(productsBought)) {
+						productsToBeRecommended as id
+					}
+				}
 			}
-	}
+				
+			var(func: eq(id, val(productsToBeRecommended))){
+				id
+				total as count(was_bought)
+			}
+				
+			top10Products(func: uid(total), orderdesc: val(total), first: 10){
+					id
+					name
+					price
+				}
+		}
 	`
 
 	variables := map[string]string{"$buyerId": buyerId}
