@@ -101,6 +101,19 @@ func loadProducts(repo LoadRepo, externalService integration.ExternalGetter, dat
 	}
 
 	if filteredProductsList != nil {
+		productExist := make(map[string]bool)
+
+		for idx, product := range filteredProductsList {
+			exists := productExist[product.Id]
+
+			if exists {
+				filteredProductsList[idx] = filteredProductsList[len(filteredProductsList)-1]
+				filteredProductsList = filteredProductsList[:len(filteredProductsList)-1]
+			}
+
+			productExist[product.Id] = true
+		}
+
 		json, err := json.Marshal(filteredProductsList)
 
 		if err != nil {
