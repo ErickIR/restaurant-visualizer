@@ -127,15 +127,17 @@ class BuyerDetails : Fragment() {
         ageDetailsTextView.text = buyerDetailsDto.buyer.age.toString()
         dateTextView.text = buyerDetailsDto.buyer.date?.parseDateFromUnixTimestampToDate() ?: "N/A"
 
-        for (item in buyerDetailsDto.buyersWithSameIp) {
-            otherBuyers.add(item.buyer)
+        if (!buyerDetailsDto.buyersWithSameIp.isNullOrEmpty()) {
+            for (item in buyerDetailsDto.buyersWithSameIp) {
+                otherBuyers.add(item.buyer)
+            }
         }
         otherBuyersAdapter.notifyDataSetChanged()
 
-        transactions.addAll(buyerDetailsDto.transactions)
+        transactions.addAll(buyerDetailsDto.transactions ?: emptyList())
         transactionsAdapter.notifyDataSetChanged()
 
-        products.addAll(buyerDetailsDto.products)
+        products.addAll(buyerDetailsDto.products ?: emptyList())
         productstAdapter.notifyDataSetChanged()
     }
 
