@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"restaurant-visualizer/pkg/models"
 	"strconv"
@@ -26,12 +27,23 @@ func NewExternalService(client http.Client) *ExternalService {
 	return &ExternalService{client}
 }
 
+// https://wwww.foo.com?date=&other=blablabla
 func (es *ExternalService) GetBuyers(date string) ([]models.Buyer, error) {
 	buyersUrl := os.Getenv("BUYERS_URL")
 
-	buyersUrl = fmt.Sprintf("%s?date=%s", buyersUrl, date)
+	parsedUrl, err := url.Parse(buyersUrl)
 
-	resp, err := es.client.Get(buyersUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	queryParams := parsedUrl.Query()
+
+	queryParams.Add("date", date)
+
+	parsedUrl.RawQuery = queryParams.Encode()
+
+	resp, err := es.client.Get(parsedUrl.String())
 
 	if err != nil {
 		return nil, err
@@ -61,6 +73,7 @@ func (es *ExternalService) GetBuyers(date string) ([]models.Buyer, error) {
 
 		if err != nil {
 			log.Println(err)
+			continue
 		}
 
 		exist := duplicate[item.Id]
@@ -82,9 +95,19 @@ func (es *ExternalService) GetBuyers(date string) ([]models.Buyer, error) {
 func (es *ExternalService) GetProducts(date string) ([]models.Product, error) {
 	productsUrl := os.Getenv("PRODUCTS_URL")
 
-	productsUrl = fmt.Sprintf("%s?date=%s", productsUrl, date)
+	parsedUrl, err := url.Parse(productsUrl)
 
-	resp, err := es.client.Get(productsUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	queryParams := parsedUrl.Query()
+
+	queryParams.Add("date", date)
+
+	parsedUrl.RawQuery = queryParams.Encode()
+
+	resp, err := es.client.Get(parsedUrl.String())
 
 	if err != nil {
 		return nil, err
@@ -112,9 +135,19 @@ func (es *ExternalService) GetProducts(date string) ([]models.Product, error) {
 func (es *ExternalService) GetTransactions(date string) ([]models.Transaction, error) {
 	transactionsUrl := os.Getenv("TRANSACTIONS_URL")
 
-	transactionsUrl = fmt.Sprintf("%s?date=%s", transactionsUrl, date)
+	parsedUrl, err := url.Parse(transactionsUrl)
 
-	resp, err := es.client.Get(transactionsUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	queryParams := parsedUrl.Query()
+
+	queryParams.Add("date", date)
+
+	parsedUrl.RawQuery = queryParams.Encode()
+
+	resp, err := es.client.Get(parsedUrl.String())
 
 	if err != nil {
 		return nil, err
